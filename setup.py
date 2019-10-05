@@ -1,8 +1,8 @@
 from setuptools import setup
 from setuptools import find_packages
 
-def setup_package():
 
+def setup_package():
     from peces import __version__
     REQUIRES = ['numpy', 'astropy>=1.0', 'pandas', 'matplotlib']
     META_DATA = dict(
@@ -15,13 +15,13 @@ def setup_package():
         entry_points={
             'console_scripts': [
                 'peces = peces.ULTRON:main',
-		'peces-version = peces.version:main'
+                'peces-version = peces.version:main'
             ],
-            },
+        },
         setup_requires=['peces'],
         install_requires=REQUIRES,
         zip_safe=False
-        )
+    )
 
     setup(**META_DATA)
 

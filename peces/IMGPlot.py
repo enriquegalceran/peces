@@ -1,5 +1,5 @@
 import numpy as np
-from .Salida_limpia import mostrarresultados, stdrobust
+from Salida_limpia import mostrarresultados, stdrobust
 # import pandas as pd
 import matplotlib.pyplot as plt
 # import os
