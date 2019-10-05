@@ -4,6 +4,11 @@
 
 
 def param_init():
+    """
+    Define initial parameters, which include default values which will be used
+
+    :return:
+    """
     param_key = ['temp_pin', 'button_pin',
                  'segments_pins_board',
                  'digit_pins_board',
@@ -17,6 +22,12 @@ def param_init():
 
 
 def read_file(paramfilename):
+    """
+    Read file and generate a list separating each line in the file
+
+    :param paramfilename:
+    :return:
+    """
     param = []
     with open(paramfilename) as fp:
         line = fp.readline()
@@ -28,6 +39,12 @@ def read_file(paramfilename):
 
 
 def clean_list(param):
+    """
+    clean list, removing spaces and '\n'
+
+    :param param:
+    :return:
+    """
     param_clean = []
     for line in param:
         text = line
@@ -37,6 +54,16 @@ def clean_list(param):
 
 
 def generate_list(param_clean, param_key, param_tuple, param_int):
+    """
+    Generates a list following the parameters set in previous lists. This allows the use of tuples, int, string or empty
+    values.
+
+    :param param_clean:
+    :param param_key:
+    :param param_tuple:
+    :param param_int:
+    :return:
+    """
     # Initialize final param_value list
     param_value = []
     for i in range(len(param_key)):
@@ -60,6 +87,13 @@ def generate_list(param_clean, param_key, param_tuple, param_int):
 
 
 def fill_default_values(param_value, param_default):
+    """
+    If some value has not been set, it will fill it with the default value
+
+    :param param_value:
+    :param param_default:
+    :return:
+    """
     for item in range(len(param_value)):
         if param_value[item] is '':
             param_value[item] = param_default[item]
@@ -67,6 +101,14 @@ def fill_default_values(param_value, param_default):
 
 
 def generate_parameter_list(filename='param.txt'):
+    """
+    Main function. Generates a list of parameters following the values set in the file 'filename'. Values that don't fit
+    the desired values aren't considered and ignored. Empty values will be filled with a default values, located inside
+    the param_init() function.
+
+    :param filename:
+    :return:
+    """
     param_key, param_tuple, param_int, param_default = param_init()
     parameters = read_file(filename)
     parameters = clean_list(parameters)
