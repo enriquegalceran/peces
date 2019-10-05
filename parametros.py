@@ -9,15 +9,16 @@ def param_init():
 
     :return:
     """
-    param_key = ['temp_pin', 'button_pin',
+    param_key = ['temp_pin', 'button1_pin',
                  'segments_pins_board',
                  'digit_pins_board',
-                 'temp_readout_time', 'data_filename']
-    param_tuple = [0, 0, 1, 1, 0, 0]
-    param_int = [1, 1, 1, 1, 1, 0]
+                 'temp_readout_time', 'write_wait_time', 'data_filename', 'usb_name']
+    param_tuple = [0, 0, 1, 1, 0, 0, 0, 0]
+    param_int = [1, 1, 1, 1, 1, 1, 0, 0]
     param_default = [19, 26,
                      (11, 4, 16, 8, 7, 10, 18, 25),
-                     (22, 27, 17, 12), 2, 'Data.txt']
+                     (22, 27, 17, 12),
+                     2, 300, 'Data.txt', 'KINGSTON']
     return param_key, param_tuple, param_int, param_default
 
 

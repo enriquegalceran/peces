@@ -5,31 +5,39 @@ import time
 import os
 from Salida_limpia import mostrarresultados
 from parametros import generate_parameter_list
+from datetime import datetime
 
-# Define GPIO INPUT model
+# ---------------- Define Initial Parameters ---------------#
+parameter_list = generate_parameter_list('param.txt')       #
+temp_pin = parameter_list[0]                                # Pin in GPIO associated to temperature
+button1_pin = parameter_list[1]                             # Pin in GPIO associated with the button
+segments_pins_board = parameter_list[2]                     # Pins in GPIO for segments
+digit_pins_board = parameter_list[3]                        # Pins in GPIO for digit cathodes
+temp_readout_time = parameter_list[4]                       # Time in seconds to wait before reading temp and humidity
+write_wait_time = parameter_list[5]                         # Time in seconds to wait before updating file
+data_filename = parameter_list[6]                           # Name of the datafile where we will save the history
+usb_name = parameter_list[7]                                # USB where data will be transferred
+usb_directory = '/media/pi'                                 # Raspberry Pi's directory where the USB will appear
+file_directory = '/home/pi'                                 # Raspberry Pi's directory where the file is
+# ----------------------------------------------------------#
+
+# set up GPIO
 GPIO.setmode(GPIO.BCM)
 GPIO.cleanup()
-
-# temp and button pins
-temp_pin = 19
-button_pin = 26
-
 GPIO.setup(temp_pin, GPIO.IN)
-GPIO.setup(button_pin, GPIO.IN)
+GPIO.setup(button1_pin, GPIO.IN)
 
-# segment pins
-segments_pins_board = (11, 4, 16, 8, 7, 10, 18, 25)
 for segment in segments_pins_board:
     GPIO.setup(segment, GPIO.OUT)
     GPIO.output(segment, 0)
 
-# digit cathodes pins
 digit_pins_board = (22, 27, 17, 12)
 for digit in digit_pins_board:
     GPIO.setup(digit, GPIO.OUT)
     GPIO.output(digit, 1)
 
 # Numbers and characters 7 segment layout dictionary
+instance = dht11.DHT11(pin=temp_pin)
 segment_dictionary = {' ': (0, 0, 0, 0, 0, 0, 0),
                       '0': (1, 1, 1, 1, 1, 1, 0),
                       '1': (0, 1, 1, 0, 0, 0, 0),
@@ -62,12 +70,6 @@ segment_dictionary = {' ': (0, 0, 0, 0, 0, 0, 0),
                       'y': (0, 1, 1, 1, 0, 1, 1),
                       }
 
-instance = dht11.DHT11(pin=temp_pin)
-temp_readout_time = 2  # seconds
-t_0 = time.time()
-usb_directory = '/media/pi'
-
-
 
 def read_th(temperature_humidity_old):
     readout = instance.read()
@@ -94,12 +96,45 @@ def show_screen(text, dictionary, digit_pins=digit_pins_board, segments_pins=seg
         GPIO.output(digit_pins[dig], 1)
 
 
+def set_new_parameters(parameter_filename):
+    global temp_pin, button1_pin, segments_pins_board, digit_pins_board, temp_readout_time, data_filename, \
+        usb_directory, usb_name
+
+    param_list = generate_parameter_list(parameter_filename)  #
+    temp_pin = param_list[0]  # Pin in GPIO associated to temperature
+    button1_pin = param_list[1]  # Pin in GPIO associated with the button
+    segments_pins_board = param_list[2]  # Pins in GPIO for segments
+    digit_pins_board = param_list[3]  # Pins in GPIO for digit cathodes
+    temp_readout_time = param_list[4]  # Time in seconds to wait before reading temp and humidity
+    data_filename = param_list[5]  # Name of the datafile where we will save the history
+    usb_directory = '/media/pi'  # Raspberry Pi's directory where the USB will appear
+    usb_name = 'KINGSTON'  # USB where data will be transferred
+
+
+def add_line_to_file(filename, newline):
+    with open(filename, 'a') as file:
+        file.write(newline + '\n')
+
+
 str_th, temp_hum = read_th((0, 0))
 mode = 1
 pressed = 0
 button = 0
+t_0 = time.time()
+t_write_0 = -999
+folder_directory = os.listdir(file_directory)
+print(folder_directory)
 
-f = open("Data.txt", "w+")
+# Check if the datafile is there.
+if data_filename in folder_directory:
+    add_line_to_file(data_filename, '\n\n--- New Execution ---\n')
+else:
+    open(data_filename, 'a').close()
+    add_line_to_file(data_filename, '--- New Execution ---\n')
+
+
+# Temporal para hacer la prueba
+write_wait_time = 5
 try:
     while True:
         t_1 = time.time()
@@ -129,9 +164,22 @@ try:
 
         # write
         t_write_1 = time.time()
+        # Check if enough time has passed since last readout
+        if t_write_1 - t_write_0 > write_wait_time:
+            now = datetime.now()
+            # dd/mm/YY H:M:S
+            dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+            print('Updating DataFile')
+            t_write_0 = t_write_1
+            add_line_to_file(data_filename, '{} | Temp= {} | Hum= {}'.format(dt_string, temp_hum[0], temp_hum[1]))
+
+
+
+        if False: # Pulsado tecla de resetear parametros
+            update_parameter = None
+
 
 
 finally:
     print('\n\nGoodbye!\n')
     GPIO.cleanup()
-    f.close()
