@@ -1,0 +1,6 @@
+temp_pin = 19
+button_pin = 26
+segments_pins_board = (11, 4, 16, 8, 7, 10, 18, 25)
+digit_pins_board = (22, 27, 17, 12)
+temp_readout_time =
+data_filename = Data.txt
