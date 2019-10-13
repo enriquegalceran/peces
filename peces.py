@@ -10,28 +10,49 @@ from datetime import datetime
 # ---------------- Define Initial Parameters ---------------#
 parameter_list = generate_parameter_list('param.txt')       #
 temp_pin = parameter_list[0]                                # Pin in GPIO associated to temperature
-button1_pin = parameter_list[1]                             # Pin in GPIO associated with the button
-segments_pins_board = parameter_list[2]                     # Pins in GPIO for segments
-digit_pins_board = parameter_list[3]                        # Pins in GPIO for digit cathodes
-temp_readout_time = parameter_list[4]                       # Time in seconds to wait before reading temp and humidity
-write_wait_time = parameter_list[5]                         # Time in seconds to wait before updating file
-data_filename = parameter_list[6]                           # Name of the datafile where we will save the history
-usb_name = parameter_list[7]                                # USB where data will be transferred
+photo = parameter_list[1]                                   # Pin in GPIO for the photoresistor
+button1_pin = parameter_list[2][0]                          # Pin in GPIO associated with the button
+button2_pin = parameter_list[2][1]                          # Pin in GPIO associated with the button
+led1 = parameter_list[3][0]                                 # Pin in GPIO for the LED 1
+led2 = parameter_list[3][1]                                 # Pin in GPIO for the LED 2
+led3 = parameter_list[3][2]                                 # Pin in GPIO for the LED 3
+leds = parameter_list[3]                                    # Pin in GPIO for all LEDs
+segments_pins_board = parameter_list[4]                     # Pins in GPIO for segments
+digit_pins_board = parameter_list[5]                        # Pins in GPIO for digit cathodes
+temp_readout_time = parameter_list[6]                       # Time in seconds to wait before reading temp and humidity
+write_wait_time = parameter_list[7]                         # Time in seconds to wait before updating file
+data_filename = parameter_list[8]                           # Name of the datafile where we will save the history
+usb_name = parameter_list[9]                                # USB where data will be transferred
 usb_directory = '/media/pi'                                 # Raspberry Pi's directory where the USB will appear
 file_directory = '/home/pi'                                 # Raspberry Pi's directory where the file is
 # ----------------------------------------------------------#
 
+mostrarresultados(['temp_pin', 'button1_pin', 'button2_pin', 'photo', 'segments_pins_board', 'digit_pins_board',
+                   'temp_readout_time', 'write_wait_time', 'data_filename',
+                   'usb_name', 'usb_directory', 'file_directory'],
+                  [temp_pin, button1_pin, button2_pin, photo, segments_pins_board, digit_pins_board,
+                   temp_readout_time, write_wait_time, data_filename,
+                   usb_name, usb_directory, file_directory]
+                  )
+
 # set up GPIO
 GPIO.setmode(GPIO.BCM)
-GPIO.cleanup()
 GPIO.setup(temp_pin, GPIO.IN)
 GPIO.setup(button1_pin, GPIO.IN)
+GPIO.setup(button2_pin, GPIO.IN)
+GPIO.setup(photo, GPIO.IN)
 
+# LEDs
+for led in leds:
+    GPIO.setup(led, GPIO.OUT)
+    GPIO.output(led, 0)
+
+# Segments
 for segment in segments_pins_board:
     GPIO.setup(segment, GPIO.OUT)
     GPIO.output(segment, 0)
 
-digit_pins_board = (22, 27, 17, 12)
+# digit_pins_board = (22, 27, 17, 12)
 for digit in digit_pins_board:
     GPIO.setup(digit, GPIO.OUT)
     GPIO.output(digit, 1)
@@ -144,7 +165,7 @@ try:
             str_th, temp_hum = read_th(temp_hum)
 
         # Change Mode
-        button = GPIO.input(26)
+        button = GPIO.input(button2_pin)
         if pressed == 0 and button == 1:
             time.sleep(0.1)
             mode = (mode + 1) % 2
@@ -173,10 +194,21 @@ try:
             t_write_0 = t_write_1
             add_line_to_file(data_filename, '{} | Temp= {} | Hum= {}'.format(dt_string, temp_hum[0], temp_hum[1]))
 
+        print(GPIO.input(button2_pin), GPIO.input(button1_pin), GPIO.input(photo))
+        if GPIO.input(button2_pin):
+            GPIO.output(led1, 1)
+        else:
+            GPIO.output(led1, 0)
 
+        if GPIO.input(button1_pin):
+            GPIO.output(led3, 1)
+            GPIO.output(led2, 1)
+        else:
+            GPIO.output(led3, 0)
+            GPIO.output(led2, 0)
 
-        if False: # Pulsado tecla de resetear parametros
-            update_parameter = None
+        if False:  # Pulsado tecla de resetear parametros
+            pass
 
 
 

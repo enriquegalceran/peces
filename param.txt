@@ -1,11 +1,12 @@
-temp_pin = 19
-button_pin = 26
-segments_pins_board = (11, 4, 16, 8, 7, 10, 18, 25)
-digit_pins_board = (22, 27, 17, 12)
+temp_pin = 13
+photoresistor = 23
+button_pin = (24, 21)
+segments_pins_board = (11, 4, 6, 8, 26, 10, 18, 25)
+leds = (7, 12, 16)
+digit_pins_board = (22, 27, 17, 19)
 temp_readout_time =
 write_wait_time = 300
 data_filename = Data.txt
 usb_name = KINGSTON
 usb_directory =
 file_directory =
-temp_readout_time', 'write_wait_time', 'data_filename', 'usb_name
